@@ -1,0 +1,19 @@
+
+VESPA Helix v2 (no Cys, Met) 
+
+Seed:  KLLKLLKKLLKLLK
+Strategy:   (1, 10)
+Sigma:   0.05
+
+(No)  (Dist)  (Sigma)  (Sequence)
+  0    0.000   0.05    KLLKLLKKLLKLLK
+  1    0.119   0.02    KLFKIIKKILKILK
+  2    0.205   0.02    KLIKLIKKIIKFVK
+  3    0.121   0.04    KILKIIKKIIKFLK
+  4    0.044   0.06    KILKLIKKLLKLIK
+  5    0.174   0.07    KIVKLLKKLIKIIK
+  6    0.187   0.03    KYLKLIKKLLKLLK
+  7    0.172   0.07    KIIKLVKKILKLLK
+  8    0.216   0.10    KFLKLIKKLLKLYK
+  9    0.194   0.08    KYLKIIKKIIKILK
+ 10    0.160   0.03    KILKILKKFFKIIK
