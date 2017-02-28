@@ -9,15 +9,19 @@ Rewritten in python by Gisela Gabernet including , 27 Feb 2017. Add-ins:
 
 import sys
 import numpy as np
+import os
+import time
 
-# TODO: implement argument checking.
-
-# Setting random seed
-# TODO: handle seed properly
 
 def main():
-    if len(sys.argv) < 5 or len(sys.argv) > 6:
-        sys.exit("\nUSAGE: <seed> <lambda> <sigma> <matrixFile> <Random_seed (optional)>\n\n")
+    if len(sys.argv) < 6 or len(sys.argv) > 7:
+        sys.exit("\nUSAGE: <seed, str> <lambda, int> <sigma, float> <sigma offspring strategy, str (G/T)> "
+                 "<matrixFile, .txt> <Random_seed (optional, int)>\n"
+                 "Offspring sigma modalities available:\n"
+                 "- 'G' (Gaussian distributed): offspring sigma gaussian distributed with SD seed sigma and "
+                 "centered on seed sigma\n"
+                 "- 'T' (one-third strategy): offspring sigma with probability 1/3 0.7*sigma, with probabiliyt 1/3 sigma,"
+                 " with probability 1/3 1.3 * sigma")
 
     print "\nVESPA Helix v2 (no Cys, Met) \n\n Calculating... \n\n"
 
@@ -25,40 +29,47 @@ def main():
     seed = str(sys.argv[1])
     lamb = int(sys.argv[2])  # Lambda
     sigma = float(sys.argv[3])
-    matrixfile = str(sys.argv[4])
+    sigma_strategy = str(sys.argv[4])
+    matrixfile = str(sys.argv[5])
 
-    if len(sys.argv) == 6:
-        np.random.seed(int(sys.argv[5]))
+    # Setting random seed if provided
+    if len(sys.argv) == 7:
+        np.random.seed(int(sys.argv[6]))
 
+    if not os.path.exists(matrixfile):
+        sys.exit("\n Matrix file does not exist under the provided path.")
 
-    # seed = "KLLKLLKKLLKLLK"
-    # lamb = 10
-    # sigma = 0.05
-    # matrixfile = "grantham_matrix2.txt"
-
-
-    # TODO: check that matrix file can be opened, otherwise abort.
-
-    length = len(seed)
     dist = 0
     n = 0
 
-    with open("vespa_run.txt", mode='w') as f:
+    with open(time.strftime("%Y-%m-%d-%H%M-vespa_run.txt"), mode='w') as f:
         f.write("\nVESPA Helix v2 (no Cys, Met) \n"
-                "\nSeed:  %s\nStrategy:   (1, %i)\nSigma:   %.2f\n\n"
-                "(No)  (Dist)  (Sigma)  (Sequence)\n" %(seed, lamb, sigma))
+                "\nSeed:  %s\nStrategy:   (1, %i)\nSigma:   %.2f\nOffspring sigma strategy: %s\n\n"
+                "(No)  (Dist)  (Sigma)  (Sequence)\n" % (seed, lamb, sigma, sigma_strategy))
 
-        f.write("%3.0f    %3.3f   %.2f    %s\n" %(n, dist, sigma, seed))
+        f.write("%3.0f    %3.3f   %.2f    %s\n" % (n, dist, sigma, seed))
 
         for n in range(1, lamb+1):
-            box = boxmuller()
-            sigmaOff = abs(sigma + box * sigma)
+
+            # Defining offspring sigma
+            if sigma_strategy == "G":
+                sigma_off = abs(sigma + boxmuller() * sigma)
+
+            elif sigma_strategy == "T":
+                sigma_off = np.random.choice([0.7 * sigma, sigma, 1.3 * sigma])
+
+            else:
+                sys.exit("Unknown Offspring sigma strategy, please choose from:"
+                         "- G (Gaussian distributed): offspring sigma gaussian distributed with SD seed sigma and "
+                         "centered on seed sigma\n"
+                         "- T (one-third strategy): offspring sigma with probability 1/3 0.7*sigma, "
+                         "with probabiliyt 1/3 sigma, with probability 1/3 1.3 * sigma")
 
             offspring, dist = mutate(seed, sigma, matrixfile)
 
-            f.write("%3.0f    %3.3f   %.2f    %s\n" %(n, dist, sigmaOff, offspring))
+            f.write("%3.0f    %3.3f   %.2f    %s\n" % (n, dist, sigma_off, offspring))
 
-    print "Run completed, results are stored in vespa_run.txt"
+    print time.strftime("Run completed, results are stored in %Y-%m-%d-%H%M-vespa_run.txt")
 
 
 def boxmuller():
