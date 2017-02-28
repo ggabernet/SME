@@ -2,7 +2,8 @@
 Vespa v2 (No Cys, Met) originally written by Gisbert Schneider in c++, 9 Jan 2016.
 
 Rewritten in python by Gisela Gabernet including , 27 Feb 2017. Add-ins:
-- Chosing strategy of sigma mutation possible
+- Possibility of adding an integer as a random seed, to make results reproducible.
+- Chosing strategy of sigma mutation possible.
 - Mutation of amino acid using the Boltzmann function with sigma decay.
 """
 
@@ -13,10 +14,9 @@ import numpy as np
 
 # Setting random seed
 # TODO: handle seed properly
-np.random.seed(3)
 
 def main():
-    if len(sys.argv) < 5 or len(sys.arg) > 6:
+    if len(sys.argv) < 5 or len(sys.argv) > 6:
         sys.exit("\nUSAGE: <seed> <lambda> <sigma> <matrixFile> <Random_seed (optional)>\n\n")
 
     print "\nVESPA Helix v2 (no Cys, Met) \n\n Calculating... \n\n"
@@ -27,7 +27,7 @@ def main():
     sigma = float(sys.argv[3])
     matrixfile = str(sys.argv[4])
 
-    if sys.argv[5]:
+    if len(sys.argv) == 6:
         np.random.seed(int(sys.argv[5]))
 
 
