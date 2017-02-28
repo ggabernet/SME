@@ -3,8 +3,9 @@ Vespa v2 (No Cys, Met) originally written by Gisbert Schneider in c++, 9 Jan 201
 
 Rewritten in python by Gisela Gabernet including , 27 Feb 2017. Add-ins:
 - Possibility of adding an integer as a random seed, to make results reproducible.
-- Chosing strategy of sigma mutation possible.
+- Chosing strategy of sigma mutation possible (gaussian or one-third strategies).
 - Mutation of amino acid using the Boltzmann function with sigma decay.
+- Choice of non-desired amino acids in the offspring.
 """
 
 import sys
@@ -14,28 +15,34 @@ import time
 
 
 def main():
-    if len(sys.argv) < 6 or len(sys.argv) > 7:
+    if len(sys.argv) < 7 or len(sys.argv) > 8:
         sys.exit("\nUSAGE: <seed, str> <lambda, int> <sigma, float> <sigma offspring strategy, str (G/T)> "
-                 "<matrixFile, .txt> <Random_seed (optional, int)>\n"
+                 "<matrixFile, .txt> <Non-desired aa, eg. CM (1letter code aa; if no aa to be excluded, type 0)> "
+                 "<Random_seed (optional, int)>\n\n"
+                 "E.g. python Vespa.py KLLKLLKKLLKLLK 10 0.05 G grantham_matrix.txt CM 3\n"
+                 "Seed Klak14, lambda 10, sigma 0.05, offspring sigma gaussian distributed around parent sigma, "
+                 "use grantham_matrix.txt for mutations, exclude Cys and Met from offspring, set random_seed = 3.\n\n"
                  "Offspring sigma modalities available:\n"
                  "- 'G' (Gaussian distributed): offspring sigma gaussian distributed with SD seed sigma and "
                  "centered on seed sigma\n"
-                 "- 'T' (one-third strategy): offspring sigma with probability 1/3 0.7*sigma, with probabiliyt 1/3 sigma,"
-                 " with probability 1/3 1.3 * sigma")
+                 "- 'T' (one-third strategy): offspring sigma with probability 1/3 0.7*sigma, "
+                 "with probability 1/3 sigma, with probability 1/3 1.3 * sigma")
 
     print "\nVESPA Helix v2 (no Cys, Met) \n\n Calculating... \n\n"
 
-    # Reading inputs from argv
+    # Reading inputs from argv.
     seed = str(sys.argv[1])
     lamb = int(sys.argv[2])  # Lambda
-    sigma = float(sys.argv[3])
+    sigma = float(sys.argv[3]) # Sigma
     sigma_strategy = str(sys.argv[4])
     matrixfile = str(sys.argv[5])
+    no_aa = list(sys.argv[6])
 
-    # Setting random seed if provided
-    if len(sys.argv) == 7:
-        np.random.seed(int(sys.argv[6]))
+    # Setting random seed if provided.
+    if len(sys.argv) == 8:
+        np.random.seed(int(sys.argv[7]))
 
+    # Checking that the matrix file exists.
     if not os.path.exists(matrixfile):
         sys.exit("\n Matrix file does not exist under the provided path.")
 
@@ -44,18 +51,18 @@ def main():
 
     with open(time.strftime("%Y-%m-%d-%H%M-vespa_run.txt"), mode='w') as f:
         f.write("\nVESPA Helix v2 (no Cys, Met) \n"
-                "\nSeed:  %s\nStrategy:   (1, %i)\nSigma:   %.2f\nOffspring sigma strategy: %s\n\n"
-                "(No)  (Dist)  (Sigma)  (Sequence)\n" % (seed, lamb, sigma, sigma_strategy))
+                "\nSeed:  %s\nStrategy:   (1, %i)\nSigma:   %.2f\nOffspring sigma strategy: %s\nUndesired_aa: %s\n\n"
+                "(No)  (Dist)  (Sigma)  (Sequence)\n" % (seed, lamb, sigma, sigma_strategy, ''.join(no_aa)))
 
         f.write("%3.0f    %3.3f   %.2f    %s\n" % (n, dist, sigma, seed))
 
         for n in range(1, lamb+1):
 
-            # Defining offspring sigma
-            if sigma_strategy == "G":
+            # Choosing offspring sigma.
+            if sigma_strategy == "G": # gaussian strategy with mean parent sigma and SD parent sigma.
                 sigma_off = abs(sigma + boxmuller() * sigma)
 
-            elif sigma_strategy == "T":
+            elif sigma_strategy == "T": # one-third strategy
                 sigma_off = np.random.choice([0.7 * sigma, sigma, 1.3 * sigma])
 
             else:
@@ -65,7 +72,8 @@ def main():
                          "- T (one-third strategy): offspring sigma with probability 1/3 0.7*sigma, "
                          "with probabiliyt 1/3 sigma, with probability 1/3 1.3 * sigma")
 
-            offspring, dist = mutate(seed, sigma, matrixfile)
+            # Generating mutant offspring and calculating the euclidean distance to the parent.
+            offspring, dist = mutate(seed, sigma, matrixfile, no_aa)
 
             f.write("%3.0f    %3.3f   %.2f    %s\n" % (n, dist, sigma_off, offspring))
 
@@ -74,16 +82,16 @@ def main():
 
 def boxmuller():
     """
-    Using the Box-Muller transformation it generates a gaussian distribution centered in 0 and with sigma = 1
+    The Box-Muller transformation picks a number from a gaussian distribution centered in 0 and with sigma = 1
     given two randomly generated numbers (i, j) in the interval [0, 1].
-    :return: Normal distributed sample with expectation 0 and sigma 1.
+    :return: Normal distributed float with expectation 0 and sigma 1.
     """
     i = np.random.random_sample(1) # picks random float [0, 1)
     j = np.random.random_sample(1) # picks random float [0, 1)
     return np.sqrt(-2.0 * np.log10(i)) * np.sin(2.0 * np.pi * j)
 
 
-def mutate(parent, sigma, matrixfile):
+def mutate(parent, sigma, matrixfile, no_aa):
     """
     Mutates *parent* sequence according to probabilities derived from the Grantham matrix, which have been decayed using
     the boltzmann function in the following way.
@@ -101,13 +109,15 @@ def mutate(parent, sigma, matrixfile):
     :param parent: {str} parent sequence.
     :param sigma: {float} sigma value for the width of the gaussian distribution for the distance to the parent residue.
     :param matrixfile: {str} path to text file where distance matrix is stored.
+    :param no_aa: {list} list of aa in 1-letter code that are chosen to be excluded from offspring.
     :return: offspring sequence as string, euclidean distance to parent as float.
     """
+
     # Read grantham matrix
     mat = np.genfromtxt(matrixfile, delimiter='\t', dtype=float, skip_header=True)
     aa_order = np.genfromtxt(matrixfile, max_rows=1, dtype=str)
 
-    # Scale each row
+    # Scale row-wise
     row_max = np.max(mat, axis=1)
     row_min = np.min(mat, axis=1)
     mat_scaled = (mat - row_min) / (row_max - row_min)
@@ -115,14 +125,23 @@ def mutate(parent, sigma, matrixfile):
     dist_aa = 0
 
     for p in range(len(parent)):
-        i = int(np.where(parent[p] == aa_order)[0]) # Translating the amino acid to a column in the grantham matrix.
+        i = int(np.where(parent[p] == aa_order)[0]) # Translating the amino acid to a column index in the grantham matrix.
 
         # Calculate the probability of mutation
         probs = np.exp((-(mat_scaled[i, :] * mat_scaled[i, :])/(2 * sigma * sigma)) /
                        np.sum(np.exp(-(mat_scaled[i, :] * mat_scaled[i, :])/(2 * sigma * sigma))))
 
-        # Making probability of mutation to M and C always 0.
-        mc0 = np.array([1., 1., 1., 1., 0., 1., 1., 1., 1., 1., 1., 1., 0., 1., 1., 1., 1., 1., 1., 1.])
+        # Making probability of mutation to undesired aa in "no_aa" always 0.
+        mc0 = np.array([1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.])
+        if len(no_aa) == 1 and no_aa[0] == '0':
+            pass
+        elif len(no_aa) >= 1:
+            for aa in no_aa:
+                idx_aa = int(np.where(aa == aa_order)[0])
+                mc0[idx_aa] = 0
+        else:
+            sys.exit("Non-desired aa argument invalid. Please type aa in 1-letter code without separation that"
+                     "you wish to be excluded in the mutations, or type 0 if you don't wish to exclude any aa.")
         probs = probs * mc0 / (np.sum(probs * mc0))
 
         # Picking amino acid:
