@@ -21,7 +21,8 @@ def main():
                  "<Random_seed (optional, int)>\n\n"
                  "E.g. python Vespa.py KLLKLLKKLLKLLK 10 0.05 G grantham_matrix.txt CM 3\n"
                  "Seed Klak14, lambda 10, sigma 0.05, offspring sigma gaussian distributed around parent sigma, "
-                 "use grantham_matrix.txt for mutations, exclude Cys and Met from offspring, set random_seed = 3.\n\n"
+                 "use grantham_matrix.txt for mutation probabilities, exclude Cys and Met from offspring, "
+                 "set random_seed = 3.\n\n"
                  "Offspring sigma modalities available:\n"
                  "- 'G' (Gaussian distributed): offspring sigma gaussian distributed with SD seed sigma and "
                  "centered on seed sigma\n"
@@ -51,7 +52,7 @@ def main():
 
     with open(time.strftime("%Y-%m-%d-%H%M-vespa_run.txt"), mode='w') as f:
         f.write("\nVESPA Helix v2 (no Cys, Met) \n"
-                "\nSeed:  %s\nStrategy:   (1, %i)\nSigma:   %.2f\nOffspring sigma strategy: %s\nUndesired_aa: %s\n\n"
+                "\nSeed:  %s\nStrategy:   (1, %i)\nSigma:   %.2f\nOffspring sigma strategy: %s\nUndesired aa: %s\n\n"
                 "(No)  (Dist)  (Sigma)  (Sequence)\n" % (seed, lamb, sigma, sigma_strategy, ''.join(no_aa)))
 
         f.write("%3.0f    %3.3f   %.2f    %s\n" % (n, dist, sigma, seed))
