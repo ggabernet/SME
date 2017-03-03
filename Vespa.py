@@ -52,7 +52,7 @@ def main():
     n = 0
 
     with open(time.strftime("%Y-%m-%d-%H%M-vespa_run.txt"), mode='w') as f:
-        f.write("\nVESPA v3:w\n"
+        f.write("\nVESPA v3\n"
                 "\nSeed:  %s\nStrategy:   (1, %i)\nSigma:   %.2f\nOffspring sigma strategy: %s"
                 "\nUndesired aa:    %s\n" % (seed, lamb, sigma, sigma_strategy, ''.join(no_aa)))
         if len(sys.argv) == 8:
