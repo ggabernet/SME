@@ -1,7 +1,7 @@
 """
-Vespa v2 (No Cys, Met) originally written by Gisbert Schneider in c++, 9 Jan 2016.
+Vespa v3. Vespa v2 originally written by Gisbert Schneider in c++, 9 Jan 2016.
 
-Rewritten in python by Gisela Gabernet including , 27 Feb 2017. Add-ins:
+Vespa v3 rewritten in python by Gisela Gabernet, 27 Feb 2017. Add-ins in v3:
 - Possibility of adding an integer as a random seed, to make results reproducible.
 - Chosing strategy of sigma mutation possible (gaussian or one-third strategies).
 - Mutation of amino acid using the Boltzmann function with sigma decay.
@@ -16,20 +16,20 @@ import time
 
 def main():
     if len(sys.argv) < 7 or len(sys.argv) > 8:
-        sys.exit("\nUSAGE: <seed, str> <lambda, int> <sigma, float> <sigma offspring strategy, str (G/T)> "
-                 "<matrixFile, .txt> <Non-desired aa, eg. CM (1letter code aa; if no aa to be excluded, type 0)> "
-                 "<Random_seed (optional, int)>\n\n"
-                 "E.g. python Vespa.py KLLKLLKKLLKLLK 10 0.05 G grantham_matrix.txt CM 3\n"
+        sys.exit("\nUSAGE: <seed> <lambda> <sigma> <sigma strategy (G/T)> "
+                 "<matrixFile> <Non-desired aa> "
+                 "<Random_seed (opt)>\n\n"
+                 "Example: python Vespa.py KLLKLLKKLLKLLK 10 0.05 G grantham_matrix.txt CM 3\n\n"
                  "Seed Klak14, lambda 10, sigma 0.05, offspring sigma gaussian distributed around parent sigma, "
                  "use grantham_matrix.txt for mutation probabilities, exclude Cys and Met from offspring, "
-                 "set random_seed = 3.\n\n"
+                 "set random_seed = 3 (optional argument, makes results reproducible by setting a random seed).\n\n"
                  "Offspring sigma modalities available:\n"
                  "- 'G' (Gaussian distributed): offspring sigma gaussian distributed with SD seed sigma and "
                  "centered on seed sigma\n"
                  "- 'T' (one-third strategy): offspring sigma with probability 1/3 0.7*sigma, "
                  "with probability 1/3 sigma, with probability 1/3 1.3 * sigma")
 
-    print "\nVESPA Helix v2 (no Cys, Met) \n\n Calculating... \n\n"
+    print "\nVESPA v3 \n\n Calculating... \n"
 
     # Reading inputs from argv.
     seed = str(sys.argv[1])
@@ -41,7 +41,8 @@ def main():
 
     # Setting random seed if provided.
     if len(sys.argv) == 8:
-        np.random.seed(int(sys.argv[7]))
+        random_seed = int(sys.argv[7])
+        np.random.seed(random_seed)
 
     # Checking that the matrix file exists.
     if not os.path.exists(matrixfile):
@@ -51,9 +52,12 @@ def main():
     n = 0
 
     with open(time.strftime("%Y-%m-%d-%H%M-vespa_run.txt"), mode='w') as f:
-        f.write("\nVESPA Helix v2 (no Cys, Met) \n"
-                "\nSeed:  %s\nStrategy:   (1, %i)\nSigma:   %.2f\nOffspring sigma strategy: %s\nUndesired aa: %s\n\n"
-                "(No)  (Dist)  (Sigma)  (Sequence)\n" % (seed, lamb, sigma, sigma_strategy, ''.join(no_aa)))
+        f.write("\nVESPA v3:w\n"
+                "\nSeed:  %s\nStrategy:   (1, %i)\nSigma:   %.2f\nOffspring sigma strategy: %s"
+                "\nUndesired aa:    %s\n" % (seed, lamb, sigma, sigma_strategy, ''.join(no_aa)))
+        if len(sys.argv) == 8:
+            f.write("Random Seed:   %i\n" % (random_seed))
+        f.write("\n(No)  (Dist)  (Sigma)  (Sequence)\n" )
 
         f.write("%3.0f    %3.3f   %.2f    %s\n" % (n, dist, sigma, seed))
 
