@@ -1,5 +1,7 @@
 """
-Vespa v3. Vespa v2 originally written by Gisbert Schneider in c++, 9 Jan 2016.
+Vespa v3
+
+Vespa v2 originally written by Gisbert Schneider in c, 9 Jan 2016.
 
 Vespa v3 rewritten in python by Gisela Gabernet, 27 Feb 2017. Add-ins in v3:
 - Possibility of adding an integer as a random seed, to make results reproducible.
