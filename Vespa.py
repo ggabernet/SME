@@ -89,7 +89,7 @@ def boxmuller():
     """
     The Box-Muller transformation picks a number from a gaussian distribution centered in 0 and with sigma = 1
     given two randomly generated numbers (i, j) in the interval [0, 1].
-    :return: Normal distributed float with expectation 0 and sigma 1.
+    :return: (float) number picked from normal distribution with expectation 0 and sigma 1.
     """
     i = np.random.random_sample(1) # picks random float [0, 1)
     j = np.random.random_sample(1) # picks random float [0, 1)
@@ -98,8 +98,8 @@ def boxmuller():
 
 def mutate(parent, sigma, matrixfile, no_aa):
     """
-    Mutates *parent* sequence according to probabilities derived from the Grantham matrix, which have been decayed using
-    the boltzmann function in the following way.
+    Mutates *parent* sequence according to probabilities derived from the provided matrixfile, which have been scaled
+    row-wise and using the boltzmann function with decay parameter sigma in the following way:
 
     .. math::
 
@@ -113,7 +113,8 @@ def mutate(parent, sigma, matrixfile, no_aa):
 
     :param parent: {str} parent sequence.
     :param sigma: {float} sigma value for the width of the gaussian distribution for the distance to the parent residue.
-    :param matrixfile: {str} path to text file where distance matrix is stored.
+    :param matrixfile: {str} path to text file where distance matrix is stored. Data needs to be tab separated.
+    First row contains amino-acid headers in one-letter code.
     :param no_aa: {list} list of aa in 1-letter code that are chosen to be excluded from offspring.
     :return: offspring sequence as string, euclidean distance to parent as float.
     """
