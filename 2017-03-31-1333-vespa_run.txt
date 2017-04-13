@@ -1,0 +1,22 @@
+
+VESPA v3
+
+Seed:  KLLKLLKKLLKLLK
+Strategy:   (1, 10)
+Sigma:   0.50
+Offspring sigma strategy: G
+Undesired aa:    CM
+Random Seed:   3
+
+(No)  (Dist)  (Sigma)  (Sequence)
+  0    0.000   0.50    KLLKLLKKLLKLLK
+  1    1.956   0.15    ELYYNDAHAIFEPK
+  2    2.218   0.17    QHEPINLTEQGYVP
+  3    2.064   0.38    GRFKGQHIEEIWKE
+  4    2.164   0.65    DDLRIGPSPPGPGK
+  5    2.002   0.67    RQVQPFPIKRRDNR
+  6    2.026   0.28    DVPLPQYWSIWSFY
+  7    2.165   0.73    LDDSTVWLRLYTII
+  8    1.381   1.02    RYFNHADSFIQFVH
+  9    2.254   0.77    RVLWDQPYGRWESN
+ 10    2.415   0.26    SGSNEHWNWTVGDQ

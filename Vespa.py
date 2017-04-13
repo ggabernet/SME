@@ -51,8 +51,6 @@ def main():
     if not os.path.exists(matrixfile):
         sys.exit("\n Matrix file does not exist under the provided path.")
 
-    dist = 0
-    n = 0
 
     with open(time.strftime("%Y-%m-%d-%H%M-vespa_run.txt"), mode='w') as f:
         f.write("\nVESPA v3\n"
@@ -62,7 +60,7 @@ def main():
             f.write("Random Seed:   %i\n" % (random_seed))
         f.write("\n(No)  (Dist)  (Sigma)  (Sequence)\n" )
 
-        f.write("%3.0f    %3.3f   %.2f    %s\n" % (n, dist, sigma, seed))
+        f.write("%3.0f    %3.3f   %.2f    %s\n" % (0, 0, sigma, seed))
 
         for n in range(1, lamb+1):
 
