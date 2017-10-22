@@ -1,5 +1,5 @@
 """
-Vespa v2 (No Cys, Met) originally written by Gisbert Schneider in c++, 9 Jan 2016.
+Vespa v2 originally written by Gisbert Schneider in c, 9 Jan 2016.
 
 Rewritten in python by Gisela Gabernet including , 27 Feb 2017. Add-ins:
 - Possibility of adding an integer as a random seed, to make results reproducible.
