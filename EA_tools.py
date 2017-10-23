@@ -77,7 +77,7 @@ class IterationAnalysis():
 		:param remove_parent: set to true if first sequence is the parent and it should be excluded from the entropy
 		analysis.
 		:Example:
-		
+
 		>>> from EA_tools import IterationAnalysis
 		>>> run = IterationAnalysis('seqs.fasta', remove_parent=False)
 		>>> run.calculate_entropy()
@@ -218,7 +218,7 @@ class IterationAnalysis():
 		for i in xrange(num_mat.shape[1]):
 			for j in xrange(num_mat.shape[0]):
 				c = self.char_mat[j, i]
-				ax1.text(i, j, c, va='center', ha='center', color=t_dict[c], size=12)
+				ax1.text(i, j, c, va='center', ha='center', color=t_dict[c], size=12, fontweight='bold')
 
 		ax1.set_yticks(np.arange(num_mat.shape[0]))
 		ax1.set_xticks(range(4, num_mat.shape[1] + 1, 5))
