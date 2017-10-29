@@ -1,11 +1,12 @@
+import os
+import sys
+from collections import Counter
+
+import matplotlib.gridspec as grd
+import matplotlib.pyplot as plt
 import numpy as np
 from Bio.SeqIO.FastaIO import FastaIterator
-import os
-from collections import Counter
-import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-import matplotlib.gridspec as grd
-import sys
 
 
 def read_fasta(inputfile):
@@ -204,8 +205,8 @@ class IterationAnalysis():
 			num_mat[self.char_mat == k] = v
 		num_mat = num_mat.astype(int)
 
-		plt.figure()
-		gs = grd.GridSpec(2, 1, height_ratios=[8, 2], wspace=0.05)
+		fig = plt.figure()
+		gs = grd.GridSpec(2, 1, height_ratios=[8, 2], hspace=0.05,)
 
 		# List of colors for plotting
 		color = ListedColormap(set(color))
@@ -247,6 +248,8 @@ class IterationAnalysis():
 		plt.ylim(0, 1)
 		plt.xlabel("Position")
 		plt.ylabel("Entropy")
+
+		gs.tight_layout(fig)
 
 		if filename == "none":
 			plt.show()
