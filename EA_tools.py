@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from Bio.SeqIO.FastaIO import FastaIterator
 from matplotlib.colors import ListedColormap
+import matplotlib
+matplotlib.rcParams.update({'figure.autolayout': True})
 
 
 def read_fasta(inputfile):
@@ -205,8 +207,9 @@ class IterationAnalysis():
 			num_mat[self.char_mat == k] = v
 		num_mat = num_mat.astype(int)
 
-		fig = plt.figure()
-		gs = grd.GridSpec(2, 1, height_ratios=[8, 2], hspace=0.05,)
+		plt.figure()
+		gs = grd.GridSpec(2, 1, height_ratios=[8, 2])
+		plt.subplots_adjust(left=0.12, bottom=0.08, right=0.85, top=0.92, wspace=0.01, hspace=0.08)
 
 		# List of colors for plotting
 		color = ListedColormap(set(color))
@@ -249,7 +252,6 @@ class IterationAnalysis():
 		plt.xlabel("Position")
 		plt.ylabel("Entropy")
 
-		gs.tight_layout(fig)
 
 		if filename == "none":
 			plt.show()
