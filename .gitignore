@@ -4,3 +4,4 @@
 .DS_Store
 notebook/
 vespa_c/*
+.ipynb_checkpoints
